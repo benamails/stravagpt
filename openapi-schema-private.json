@@ -1,0 +1,396 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Strava Connector API (Private)",
+    "description": "Private proxy API for accessing Strava data including athlete profiles, activities, and statistics",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://stravagpt.vercel.app",
+      "description": "Production server - Replace with your actual Vercel deployment URL"
+    }
+  ],
+  "paths": {
+    "/api/test": {
+      "get": {
+        "summary": "Health check and endpoint information",
+        "description": "Test endpoint to verify API is running and get list of available endpoints",
+        "operationId": "testApi",
+        "responses": {
+          "200": {
+            "description": "API status and endpoints",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "message": { "type": "string" },
+                    "timestamp": { "type": "string" },
+                    "endpoints": { "type": "object" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth": {
+      "get": {
+        "summary": "Get Strava OAuth authorization URL",
+        "description": "Returns the Strava OAuth URL that users need to visit to authorize access",
+        "operationId": "getAuthUrl",
+        "responses": {
+          "200": {
+            "description": "Authorization URL",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "authUrl": { "type": "string" },
+                    "message": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/callback": {
+      "get": {
+        "summary": "Exchange authorization code for access token",
+        "description": "Exchanges the authorization code from Strava for access and refresh tokens",
+        "operationId": "exchangeToken",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "query",
+            "required": true,
+            "description": "Authorization code from Strava OAuth callback",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authentication tokens and athlete data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "message": { "type": "string" },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "access_token": { "type": "string" },
+                        "refresh_token": { "type": "string" },
+                        "expires_at": { "type": "number" },
+                        "athlete": { "$ref": "#/components/schemas/Athlete" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/store-token": {
+      "post": {
+        "summary": "Store Strava access tokens",
+        "description": "Stores Strava access and refresh tokens for future use",
+        "operationId": "storeToken",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["access_token", "refresh_token", "expires_at"],
+                "properties": {
+                  "access_token": { 
+                    "type": "string",
+                    "description": "Strava access token"
+                  },
+                  "refresh_token": { 
+                    "type": "string",
+                    "description": "Strava refresh token"
+                  },
+                  "expires_at": { 
+                    "type": "number",
+                    "description": "Token expiration timestamp"
+                  },
+                  "athlete": { 
+                    "$ref": "#/components/schemas/Athlete",
+                    "description": "Athlete data (optional)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tokens stored successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "message": { "type": "string" },
+                    "athlete": { "$ref": "#/components/schemas/Athlete" }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing required token data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "error": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/strava/athlete": {
+      "get": {
+        "summary": "Get authenticated athlete profile",
+        "description": "Returns the profile information for the authenticated athlete. Requires Authorization header with Bearer token.",
+        "operationId": "getAthlete",
+        "responses": {
+          "200": {
+            "description": "Athlete profile data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "data": { "$ref": "#/components/schemas/Athlete" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/strava/activities": {
+      "get": {
+        "summary": "Get athlete activities",
+        "description": "Returns a list of activities for the authenticated athlete. Requires Authorization header with Bearer token.",
+        "operationId": "getActivities",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number (default: 1)",
+            "schema": { "type": "integer", "default": 1 }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "description": "Number of activities per page (default: 30, max: 200)",
+            "schema": { "type": "integer", "default": 30, "maximum": 200 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of activities",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Activity" }
+                    },
+                    "pagination": {
+                      "type": "object",
+                      "properties": {
+                        "page": { "type": "integer" },
+                        "per_page": { "type": "integer" },
+                        "total": { "type": "integer" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/strava/activities/{id}": {
+      "get": {
+        "summary": "Get specific activity details",
+        "description": "Returns detailed information about a specific activity. Requires Authorization header with Bearer token.",
+        "operationId": "getActivity",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Activity ID",
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Activity details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "data": { "$ref": "#/components/schemas/Activity" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/strava/stats": {
+      "get": {
+        "summary": "Get athlete statistics",
+        "description": "Returns training statistics and metrics for an athlete. Requires Authorization header with Bearer token.",
+        "operationId": "getAthleteStats",
+        "parameters": [
+          {
+            "name": "athlete_id",
+            "in": "query",
+            "required": true,
+            "description": "Athlete ID",
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Athlete statistics",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "data": { "$ref": "#/components/schemas/AthleteStats" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "apiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key",
+        "description": "Private API key for additional security"
+      }
+    },
+    "schemas": {
+      "Athlete": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "username": { "type": "string" },
+          "firstname": { "type": "string" },
+          "lastname": { "type": "string" },
+          "city": { "type": "string" },
+          "state": { "type": "string" },
+          "country": { "type": "string" },
+          "sex": { "type": "string" },
+          "weight": { "type": "number" },
+          "profile": { "type": "string" },
+          "follower_count": { "type": "integer" },
+          "friend_count": { "type": "integer" },
+          "athlete_type": { "type": "integer" },
+          "date_preference": { "type": "string" },
+          "measurement_preference": { "type": "string" }
+        }
+      },
+      "Activity": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "string" },
+          "distance": { "type": "number" },
+          "moving_time": { "type": "integer" },
+          "elapsed_time": { "type": "integer" },
+          "total_elevation_gain": { "type": "number" },
+          "type": { "type": "string" },
+          "start_date": { "type": "string" },
+          "start_date_local": { "type": "string" },
+          "average_speed": { "type": "number" },
+          "max_speed": { "type": "number" },
+          "average_heartrate": { "type": "number" },
+          "max_heartrate": { "type": "number" },
+          "elev_high": { "type": "number" },
+          "elev_low": { "type": "number" },
+          "description": { "type": "string" },
+          "calories": { "type": "number" },
+          "map": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "summary_polyline": { "type": "string" }
+            }
+          }
+        }
+      },
+      "AthleteStats": {
+        "type": "object",
+        "properties": {
+          "biggest_ride_distance": { "type": "number" },
+          "biggest_climb_elevation_gain": { "type": "number" },
+          "recent_run_totals": { "$ref": "#/components/schemas/ActivityTotals" },
+          "recent_ride_totals": { "$ref": "#/components/schemas/ActivityTotals" },
+          "recent_swim_totals": { "$ref": "#/components/schemas/ActivityTotals" },
+          "ytd_run_totals": { "$ref": "#/components/schemas/ActivityTotals" },
+          "ytd_ride_totals": { "$ref": "#/components/schemas/ActivityTotals" },
+          "ytd_swim_totals": { "$ref": "#/components/schemas/ActivityTotals" },
+          "all_run_totals": { "$ref": "#/components/schemas/ActivityTotals" },
+          "all_ride_totals": { "$ref": "#/components/schemas/ActivityTotals" },
+          "all_swim_totals": { "$ref": "#/components/schemas/ActivityTotals" }
+        }
+      },
+      "ActivityTotals": {
+        "type": "object",
+        "properties": {
+          "count": { "type": "integer" },
+          "distance": { "type": "number" },
+          "moving_time": { "type": "integer" },
+          "elapsed_time": { "type": "integer" },
+          "elevation_gain": { "type": "number" },
+          "achievement_count": { "type": "integer" }
+        }
+      }
+    }
+  }
+}

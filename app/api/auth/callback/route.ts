@@ -1,0 +1,70 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { stravaClient } from '@/lib/strava';
+import { validateApiKey } from '@/lib/auth';
+
+export async function GET(request: NextRequest) {
+  try {
+    // Optional API key validation for extra security
+    const apiKeyError = validateApiKey(request);
+    if (apiKeyError) return apiKeyError;
+    const { searchParams } = new URL(request.url);
+    const code = searchParams.get('code');
+    const error = searchParams.get('error');
+
+    if (error) {
+      const errorUrl = new URL('/auth/error', request.url);
+      errorUrl.searchParams.set('message', `OAuth error: ${error}`);
+      return NextResponse.redirect(errorUrl);
+    }
+
+    if (!code) {
+      const errorUrl = new URL('/auth/error', request.url);
+      errorUrl.searchParams.set('message', 'No authorization code provided');
+      return NextResponse.redirect(errorUrl);
+    }
+
+    const tokenResponse = await stravaClient.exchangeCodeForToken(code);
+
+    // Forward tokens to store endpoint using BASE_URL
+    try {
+      const baseUrl = process.env.BASE_URL || request.url.split('/api')[0];
+      console.log('🔄 Forwarding tokens to /store-token at:', `${baseUrl}/api/store-token`);
+      
+      const storeResponse = await fetch(`${baseUrl}/api/store-token`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-API-Key': process.env.API_KEY || ''
+        },
+        body: JSON.stringify(tokenResponse)
+      });
+
+      console.log('📡 Store-token response status:', storeResponse.status);
+      const storeResult = await storeResponse.json();
+      console.log('📦 Store-token response:', storeResult);
+      
+      if (!storeResult.success) {
+        console.error('❌ Failed to store tokens:', storeResult.error);
+      } else {
+        console.log('✅ Tokens stored successfully');
+        console.log('🏃 Athlete stored:', tokenResponse.athlete?.firstname || 'Unknown');
+      }
+    } catch (error) {
+      console.error('💥 Error storing tokens:', error);
+    }
+
+    // Redirect to a success page instead of returning JSON
+    const successUrl = new URL('/auth/success', request.url);
+    successUrl.searchParams.set('athlete', tokenResponse.athlete?.firstname || 'Athlete');
+    
+    return NextResponse.redirect(successUrl);
+  } catch (error) {
+    console.error('Callback error:', error);
+    
+    // Redirect to error page instead of returning JSON
+    const errorUrl = new URL('/auth/error', request.url);
+    errorUrl.searchParams.set('message', 'Failed to complete authentication');
+    
+    return NextResponse.redirect(errorUrl);
+  }
+}

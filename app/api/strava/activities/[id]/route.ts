@@ -1,0 +1,47 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { stravaClient } from '@/lib/strava';
+import { validateApiKey } from '@/lib/auth';
+import { refreshTokensIfNeeded } from '@/lib/stravaTokens';
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    // Optional API key validation for extra security
+    const apiKeyError = validateApiKey(request);
+    if (apiKeyError) return apiKeyError;
+
+    // Always refresh tokens if needed before making API calls
+    const tokens = await refreshTokensIfNeeded();
+
+    if (!tokens) {
+      return NextResponse.json(
+        { success: false, error: 'Not authenticated. Please authenticate first.' },
+        { status: 401 }
+      );
+    }
+
+    const activityId = parseInt(params.id);
+
+    if (isNaN(activityId)) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid activity ID' },
+        { status: 400 }
+      );
+    }
+
+    const activity = await stravaClient.getActivity(tokens.access_token, activityId);
+
+    return NextResponse.json({
+      success: true,
+      data: activity
+    });
+  } catch (error) {
+    console.error('Activity fetch error:', error);
+    return NextResponse.json(
+      { success: false, error: 'Failed to fetch activity' },
+      { status: 500 }
+    );
+  }
+}
