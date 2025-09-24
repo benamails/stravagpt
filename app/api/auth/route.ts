@@ -1,3 +1,5 @@
+// app/api/auth/route.ts
+
 import { NextRequest, NextResponse } from 'next/server';
 import { stravaClient } from '@/lib/strava';
 import { validateApiKey } from '@/lib/auth';

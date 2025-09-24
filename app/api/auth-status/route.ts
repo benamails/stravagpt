@@ -1,11 +1,22 @@
+// app/api/auth-status/route.ts
+
 import { NextRequest, NextResponse } from 'next/server';
 import { loadTokens } from '@/lib/tokenStorage';
 
-// Public endpoint for the auth success page to check token status
-// No API key required since it's used by the auth flow itself
 export async function GET(request: NextRequest) {
   try {
-    const tokens = await loadTokens();
+    // Extraire l'athleteId depuis les paramètres de query (comme dans callback)
+    const { searchParams } = new URL(request.url);
+    const athleteId = searchParams.get('athleteId');
+    
+    if (!athleteId) {
+      return NextResponse.json({
+        success: false,
+        error: 'Athlete ID required'
+      }, { status: 400 });
+    }
+
+    const tokens = await loadTokens(athleteId); // ✅ Avec paramètre obligatoire
     
     if (!tokens) {
       return NextResponse.json({
@@ -20,7 +31,7 @@ export async function GET(request: NextRequest) {
     const now = Math.floor(Date.now() / 1000);
     const isExpired = tokens.expires_at <= now;
     const timeUntilExpiry = Math.max(0, tokens.expires_at - now);
-
+    
     return NextResponse.json({
       success: true,
       data: {
@@ -34,6 +45,7 @@ export async function GET(request: NextRequest) {
         } : null
       }
     });
+
   } catch (error) {
     console.error('Auth status check error:', error);
     return NextResponse.json({

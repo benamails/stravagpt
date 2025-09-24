@@ -1,3 +1,5 @@
+// app/api/clear-tokens/route.ts
+
 import { NextRequest, NextResponse } from 'next/server';
 import { validateApiKey } from '@/lib/auth';
 import { clearTokens } from '@/lib/tokenStorage';
