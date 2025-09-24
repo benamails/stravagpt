@@ -1,5 +1,4 @@
 // app/api/store-token/route.ts
-
 import { NextRequest, NextResponse } from 'next/server';
 import { validateApiKey } from '@/lib/auth';
 import { saveTokens } from '@/lib/tokenStorage';
@@ -21,9 +20,6 @@ export async function POST(request: NextRequest) {
     } else {
       console.log('🔗 Internal call detected, skipping API key validation');
     }
-    
-    // ... reste du code inchangé
-
 
     const body = await request.json();
     console.log('📦 Received token data:', {
@@ -51,15 +47,14 @@ export async function POST(request: NextRequest) {
       expires_in: expires_at - Math.floor(Date.now() / 1000),
       athlete
     };
-    
+
     console.log('💾 Storing tokens with data:', {
       expires_at: tokenData.expires_at,
       expires_in: tokenData.expires_in,
       athlete_id: athlete?.id
     });
-    
+
     await saveTokens(tokenData);
-    
     console.log('✅ Tokens stored successfully in persistent storage');
 
     return NextResponse.json({
@@ -67,6 +62,7 @@ export async function POST(request: NextRequest) {
       message: 'Tokens stored successfully',
       athlete: athlete || null
     });
+
   } catch (error) {
     console.error('💥 Store token error:', error);
     return NextResponse.json(
