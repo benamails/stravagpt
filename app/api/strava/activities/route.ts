@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
     const afterParam = searchParams.get('after');
     const nowSeconds = Math.floor(Date.now() / 1000);
     const defaultAfter = nowSeconds - 28 * 24 * 60 * 60;
-    const before = beforeParam ? parseInt(beforeParam) : undefined;
+    const before = beforeParam ? parseInt(beforeParam) : nowSeconds;
     const after = afterParam ? parseInt(afterParam) : defaultAfter;
 
     let activities = await stravaClient.getActivities(
