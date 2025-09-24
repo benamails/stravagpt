@@ -1,5 +1,3 @@
-//app/api/strava/activities/route.ts
-
 import { NextRequest, NextResponse } from 'next/server';
 import { stravaClient } from '@/lib/strava';
 import { validateApiKey } from '@/lib/auth';
@@ -19,12 +17,8 @@ export async function GET(request: NextRequest) {
       const current = await getCurrentUser();
       athleteId = (current?.athlete?.id || current?.athlete_id)?.toString() || null;
     }
-    
     if (!athleteId) {
-      return NextResponse.json({
-        success: false,
-        error: 'Athlete ID required'
-      }, { status: 400 });
+      return NextResponse.json({ success: false, error: 'Athlete ID required' }, { status: 400 });
     }
 
     // Always refresh tokens if needed before making API calls
@@ -43,12 +37,8 @@ export async function GET(request: NextRequest) {
 
     const pageParam = searchParams.get('page');
     const perPageParam = searchParams.get('per_page');
-    if (!pageParam || !perPageParam) {
-      return NextResponse.json({ success: false, error: 'Missing required pagination params: page and per_page' }, { status: 400 });
-    }
-
-    const page = Math.max(1, parseInt(pageParam));
-    const requestedPerPage = parseInt(perPageParam);
+    const page = Math.max(1, parseInt(pageParam || '1'));
+    const requestedPerPage = parseInt(perPageParam || '30');
     const perPage = Math.max(1, Math.min(requestedPerPage, 50)); // cap page size
 
     // Date bounds: default to last 28 days if not provided
@@ -86,7 +76,6 @@ export async function GET(request: NextRequest) {
         after
       }
     });
-
   } catch (error) {
     console.error('Activities fetch error:', error);
     return NextResponse.json(
