@@ -39,13 +39,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Ensure we have an athlete id to use as the storage key
+    const athleteId = athlete?.id;
+    if (!athleteId) {
+      console.log('❌ Missing athlete id in token payload');
+      return NextResponse.json(
+        { success: false, error: 'Missing athlete id in token payload' },
+        { status: 400 }
+      );
+    }
+
     // Store tokens using persistent storage
     const tokenData = {
       access_token,
       refresh_token,
       expires_at,
       expires_in: expires_at - Math.floor(Date.now() / 1000),
-      athlete
+      athlete,
+      athlete_id: athleteId
     };
 
     console.log('💾 Storing tokens with data:', {
