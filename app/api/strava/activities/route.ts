@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { stravaClient } from '@/lib/strava';
 import { validateApiKey } from '@/lib/auth';
 import { refreshTokensIfNeeded } from '@/lib/stravaTokens';
+import { getCurrentUser } from '@/lib/tokenStorage';
 
 export async function GET(request: NextRequest) {
   try {
@@ -11,9 +12,13 @@ export async function GET(request: NextRequest) {
     const apiKeyError = validateApiKey(request);
     if (apiKeyError) return apiKeyError;
 
-    // Extract athleteId from query parameters
+    // Extract athleteId from query parameters or fallback to current stored user
     const { searchParams } = new URL(request.url);
-    const athleteId = searchParams.get('athleteId');
+    let athleteId = searchParams.get('athleteId');
+    if (!athleteId) {
+      const current = await getCurrentUser();
+      athleteId = (current?.athlete?.id || current?.athlete_id)?.toString() || null;
+    }
     
     if (!athleteId) {
       return NextResponse.json({

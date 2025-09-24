@@ -2,7 +2,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { validateApiKey } from '@/lib/auth';
-import { loadTokens } from '@/lib/tokenStorage';
+import { loadTokens, getCurrentUser } from '@/lib/tokenStorage';
 
 export async function GET(request: NextRequest) {
   try {
@@ -12,18 +12,15 @@ export async function GET(request: NextRequest) {
     const apiKeyError = validateApiKey(request);
     if (apiKeyError) return apiKeyError;
 
-    // Extraire l'athleteId depuis les paramètres de query
+    // Extraire l'athleteId depuis les paramètres de query ou fallback utilisateur courant
     const { searchParams } = new URL(request.url);
-    const athleteId = searchParams.get('athleteId');
-    
+    let athleteId = searchParams.get('athleteId');
     if (!athleteId) {
-      return NextResponse.json({
-        success: false,
-        error: 'Athlete ID required'
-      }, { status: 400 });
+      const current = await getCurrentUser();
+      athleteId = (current?.athlete?.id || current?.athlete_id)?.toString() || null;
     }
 
-    const tokens = await loadTokens(athleteId); // ✅ Avec paramètre
+    const tokens = athleteId ? await loadTokens(athleteId) : null;
 
     console.log('🔍 Current token state:', {
       has_tokens: !!tokens,

@@ -1,7 +1,7 @@
 // app/api/store-token/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { validateApiKey } from '@/lib/auth';
-import { saveTokens } from '@/lib/tokenStorage';
+import { saveTokens, getCurrentUser } from '@/lib/tokenStorage';
 
 export async function POST(request: NextRequest) {
   try {
@@ -40,13 +40,27 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Determine athleteId: prefer request body, otherwise fallback to current stored user
+    let athleteId: number | undefined = athlete?.id || body.athlete_id;
+    if (!athleteId) {
+      const currentUserTokens = await getCurrentUser();
+      athleteId = currentUserTokens?.athlete?.id || currentUserTokens?.athlete_id;
+    }
+    if (!athleteId) {
+      return NextResponse.json(
+        { success: false, error: 'Athlete ID missing and no current user set' },
+        { status: 400 }
+      );
+    }
+
     // Store tokens using persistent storage
     const tokenData = {
       access_token,
       refresh_token,
       expires_at,
       expires_in: expires_at - Math.floor(Date.now() / 1000),
-      athlete
+      athlete,
+      athlete_id: athleteId
     };
 
     console.log('💾 Storing tokens with data:', {
