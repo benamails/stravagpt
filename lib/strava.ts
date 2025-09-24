@@ -128,7 +128,12 @@ export class StravaClient {
     }
   }
 
-  async getActivities(accessToken: string, page = 1, perPage = 30): Promise<StravaActivity[]> {
+  async getActivities(
+    accessToken: string,
+    page = 1,
+    perPage = 30,
+    options?: { before?: number; after?: number }
+  ): Promise<StravaActivity[]> {
     try {
       const response = await axios.get(`${this.baseUrl}/athlete/activities`, {
         headers: {
@@ -136,7 +141,9 @@ export class StravaClient {
         },
         params: {
           page,
-          per_page: perPage
+          per_page: perPage,
+          ...(options?.before ? { before: options.before } : {}),
+          ...(options?.after ? { after: options.after } : {})
         }
       });
 

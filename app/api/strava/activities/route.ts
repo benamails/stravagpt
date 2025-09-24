@@ -36,10 +36,44 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const page = parseInt(searchParams.get('page') || '1');
-    const perPage = parseInt(searchParams.get('per_page') || '30');
+    // Enforce server-side pagination only
+    if (searchParams.get('all') === 'true') {
+      return NextResponse.json({ success: false, error: 'Parameter all=true is not allowed. Use page and per_page.' }, { status: 400 });
+    }
 
-    const activities = await stravaClient.getActivities(tokens.access_token, page, perPage);
+    const pageParam = searchParams.get('page');
+    const perPageParam = searchParams.get('per_page');
+    if (!pageParam || !perPageParam) {
+      return NextResponse.json({ success: false, error: 'Missing required pagination params: page and per_page' }, { status: 400 });
+    }
+
+    const page = Math.max(1, parseInt(pageParam));
+    const requestedPerPage = parseInt(perPageParam);
+    const perPage = Math.max(1, Math.min(requestedPerPage, 50)); // cap page size
+
+    // Date bounds: default to last 28 days if not provided
+    const beforeParam = searchParams.get('before');
+    const afterParam = searchParams.get('after');
+    const nowSeconds = Math.floor(Date.now() / 1000);
+    const defaultAfter = nowSeconds - 28 * 24 * 60 * 60;
+    const before = beforeParam ? parseInt(beforeParam) : undefined;
+    const after = afterParam ? parseInt(afterParam) : defaultAfter;
+
+    let activities = await stravaClient.getActivities(
+      tokens.access_token,
+      page,
+      perPage,
+      { before, after }
+    );
+
+    // Optionally omit heavy map field unless explicitly requested
+    const includeMap = searchParams.get('include_map') === 'true';
+    if (!includeMap) {
+      activities = activities.map(a => {
+        const { map, ...rest } = a as any;
+        return rest;
+      });
+    }
 
     return NextResponse.json({
       success: true,
@@ -47,7 +81,9 @@ export async function GET(request: NextRequest) {
       pagination: {
         page,
         per_page: perPage,
-        total: activities.length
+        total: activities.length,
+        before,
+        after
       }
     });
 
