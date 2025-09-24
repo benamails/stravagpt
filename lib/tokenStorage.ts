@@ -4,7 +4,9 @@ import { getRedisClient } from '@/lib/redis';
 export async function saveTokens(tokenData: any) {
   try {
     const redis = getRedisClient();
-    const key = `strava_tokens:${tokenData.athlete_id}`;
+    // Correction: supporter les deux formats d'athlete
+    const athleteId = tokenData.athlete?.id || tokenData.athlete_id;
+    const key = `strava_tokens:${athleteId}`;
     
     // Stocker les données avec expiration
     await redis.setex(key, 86400 * 30, JSON.stringify(tokenData)); // 30 jours
@@ -21,8 +23,8 @@ export async function loadTokens(athleteId: string) {
   try {
     const redis = getRedisClient();
     const key = `strava_tokens:${athleteId}`;
-    
     const data = await redis.get(key);
+    
     if (!data) {
       return null;
     }
@@ -38,8 +40,8 @@ export async function clearTokens(athleteId: string) {
   try {
     const redis = getRedisClient();
     const key = `strava_tokens:${athleteId}`;
-    
     await redis.del(key);
+    
     console.log('✅ Tokens cleared from Redis');
     return { success: true };
   } catch (error) {
