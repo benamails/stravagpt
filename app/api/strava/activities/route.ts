@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
     );
 
     // Optionally omit heavy map field unless explicitly requested
-    const includeMap = searchParams.get('include_map') === 'true';
+    const includeMap = searchParams.get('include_map') === 'false';
     if (!includeMap) {
       activities = activities.map(a => {
         const { map, ...rest } = a as any;
