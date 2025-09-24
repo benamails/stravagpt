@@ -34,7 +34,11 @@ export async function loadTokens(athleteId: string) {
       return null;
     }
     
-    return JSON.parse(data as string);
+    // Upstash client may auto-parse JSON and return an object already
+    if (typeof data === 'string') {
+      return JSON.parse(data);
+    }
+    return data as any;
   } catch (error) {
     console.error('❌ Error loading tokens:', error);
     throw error;
