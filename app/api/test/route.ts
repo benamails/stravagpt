@@ -1,3 +1,5 @@
+// app/api/test/route.ts
+
 import { NextRequest, NextResponse } from 'next/server';
 import { validateApiKey } from '@/lib/auth';
 

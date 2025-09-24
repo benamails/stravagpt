@@ -1,0 +1,26 @@
+[ {
+  "id" : 123456778928065,
+  "athlete" : {
+    "id" : 12343545645788,
+    "resource_state" : 1
+  },
+  "name" : "Chill Day",
+  "distance" : 0,
+  "moving_time" : 18373,
+  "elapsed_time" : 18373,
+  "total_elevation_gain" : 0,
+  "type" : "Ride",
+  "sport_type" : "MountainBikeRide",
+  "start_date" : "2018-02-20T18:02:13Z",
+  "start_date_local" : "2018-02-20T10:02:13Z",
+  "timezone" : "(GMT-08:00) America/Los_Angeles",
+  "utc_offset" : -28800,
+  "commute" : false,
+  "average_speed" : 0,
+  "max_speed" : 0,
+  "device_watts" : false,
+  "has_heartrate" : false,
+  "description" : null,
+  "calories" : 0
+}
+]

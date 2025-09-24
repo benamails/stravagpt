@@ -36,10 +36,12 @@ export async function GET(request: NextRequest) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-API-Key': process.env.API_KEY || ''
+          'X-API-Key': process.env.API_KEY || '',
+          'X-Internal-Call': 'true'  // Marqueur pour les appels internes
         },
         body: JSON.stringify(tokenResponse)
       });
+      
 
       console.log('📡 Store-token response status:', storeResponse.status);
       const storeResult = await storeResponse.json();

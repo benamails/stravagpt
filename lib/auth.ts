@@ -1,3 +1,5 @@
+// lib/auth.ts
+
 import { NextRequest, NextResponse } from 'next/server';
 
 export function validateApiKey(request: NextRequest): NextResponse | null {
@@ -6,7 +8,7 @@ export function validateApiKey(request: NextRequest): NextResponse | null {
 
   if (!requiredApiKey) {
     return null;
-  } // <- Accolade fermante ajoutée
+  }
 
   const apiKey = request.headers.get('x-api-key');
 

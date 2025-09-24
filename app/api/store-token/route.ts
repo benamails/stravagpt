@@ -8,12 +8,22 @@ export async function POST(request: NextRequest) {
   try {
     console.log('📥 Store-token endpoint called');
     
-    // Optional API key validation for extra security
-    const apiKeyError = validateApiKey(request);
-    if (apiKeyError) {
-      console.log('🔑 API key validation failed');
-      return apiKeyError;
+    // Vérifier si c'est un appel interne
+    const isInternalCall = request.headers.get('X-Internal-Call') === 'true';
+    
+    // Optional API key validation for extra security (skip pour appels internes)
+    if (!isInternalCall) {
+      const apiKeyError = validateApiKey(request);
+      if (apiKeyError) {
+        console.log('🔑 API key validation failed');
+        return apiKeyError;
+      }
+    } else {
+      console.log('🔗 Internal call detected, skipping API key validation');
     }
+    
+    // ... reste du code inchangé
+
 
     const body = await request.json();
     console.log('📦 Received token data:', {

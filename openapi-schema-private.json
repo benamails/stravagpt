@@ -25,10 +25,18 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "success": { "type": "boolean" },
-                    "message": { "type": "string" },
-                    "timestamp": { "type": "string" },
-                    "endpoints": { "type": "object" }
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "timestamp": {
+                      "type": "string"
+                    },
+                    "endpoints": {
+                      "type": "object"
+                    }
                   }
                 }
               }
@@ -50,9 +58,15 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "success": { "type": "boolean" },
-                    "authUrl": { "type": "string" },
-                    "message": { "type": "string" }
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "authUrl": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
                   }
                 }
               }
@@ -72,7 +86,9 @@
             "in": "query",
             "required": true,
             "description": "Authorization code from Strava OAuth callback",
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -83,15 +99,27 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "success": { "type": "boolean" },
-                    "message": { "type": "string" },
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
                     "data": {
                       "type": "object",
                       "properties": {
-                        "access_token": { "type": "string" },
-                        "refresh_token": { "type": "string" },
-                        "expires_at": { "type": "number" },
-                        "athlete": { "$ref": "#/components/schemas/Athlete" }
+                        "access_token": {
+                          "type": "string"
+                        },
+                        "refresh_token": {
+                          "type": "string"
+                        },
+                        "expires_at": {
+                          "type": "number"
+                        },
+                        "athlete": {
+                          "$ref": "#/components/schemas/Athlete"
+                        }
                       }
                     }
                   }
@@ -113,21 +141,25 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["access_token", "refresh_token", "expires_at"],
+                "required": [
+                  "access_token",
+                  "refresh_token",
+                  "expires_at"
+                ],
                 "properties": {
-                  "access_token": { 
+                  "access_token": {
                     "type": "string",
                     "description": "Strava access token"
                   },
-                  "refresh_token": { 
+                  "refresh_token": {
                     "type": "string",
                     "description": "Strava refresh token"
                   },
-                  "expires_at": { 
+                  "expires_at": {
                     "type": "number",
                     "description": "Token expiration timestamp"
                   },
-                  "athlete": { 
+                  "athlete": {
                     "$ref": "#/components/schemas/Athlete",
                     "description": "Athlete data (optional)"
                   }
@@ -144,9 +176,15 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "success": { "type": "boolean" },
-                    "message": { "type": "string" },
-                    "athlete": { "$ref": "#/components/schemas/Athlete" }
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "athlete": {
+                      "$ref": "#/components/schemas/Athlete"
+                    }
                   }
                 }
               }
@@ -159,8 +197,12 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "success": { "type": "boolean" },
-                    "error": { "type": "string" }
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
                   }
                 }
               }
@@ -182,8 +224,12 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "success": { "type": "boolean" },
-                    "data": { "$ref": "#/components/schemas/Athlete" }
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Athlete"
+                    }
                   }
                 }
               }
@@ -202,13 +248,20 @@
             "name": "page",
             "in": "query",
             "description": "Page number (default: 1)",
-            "schema": { "type": "integer", "default": 1 }
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
           },
           {
             "name": "per_page",
             "in": "query",
             "description": "Number of activities per page (default: 30, max: 200)",
-            "schema": { "type": "integer", "default": 30, "maximum": 200 }
+            "schema": {
+              "type": "integer",
+              "default": 30,
+              "maximum": 200
+            }
           }
         ],
         "responses": {
@@ -219,17 +272,27 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "success": { "type": "boolean" },
+                    "success": {
+                      "type": "boolean"
+                    },
                     "data": {
                       "type": "array",
-                      "items": { "$ref": "#/components/schemas/Activity" }
+                      "items": {
+                        "$ref": "#/components/schemas/Activity"
+                      }
                     },
                     "pagination": {
                       "type": "object",
                       "properties": {
-                        "page": { "type": "integer" },
-                        "per_page": { "type": "integer" },
-                        "total": { "type": "integer" }
+                        "page": {
+                          "type": "integer"
+                        },
+                        "per_page": {
+                          "type": "integer"
+                        },
+                        "total": {
+                          "type": "integer"
+                        }
                       }
                     }
                   }
@@ -251,7 +314,9 @@
             "in": "path",
             "required": true,
             "description": "Activity ID",
-            "schema": { "type": "integer" }
+            "schema": {
+              "type": "integer"
+            }
           }
         ],
         "responses": {
@@ -262,8 +327,12 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "success": { "type": "boolean" },
-                    "data": { "$ref": "#/components/schemas/Activity" }
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/DetailedActivity"
+                    }
                   }
                 }
               }
@@ -283,7 +352,9 @@
             "in": "query",
             "required": true,
             "description": "Athlete ID",
-            "schema": { "type": "integer" }
+            "schema": {
+              "type": "integer"
+            }
           }
         ],
         "responses": {
@@ -294,8 +365,12 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "success": { "type": "boolean" },
-                    "data": { "$ref": "#/components/schemas/AthleteStats" }
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AthleteStats"
+                    }
                   }
                 }
               }
@@ -318,77 +393,413 @@
       "Athlete": {
         "type": "object",
         "properties": {
-          "id": { "type": "integer" },
-          "username": { "type": "string" },
-          "firstname": { "type": "string" },
-          "lastname": { "type": "string" },
-          "city": { "type": "string" },
-          "state": { "type": "string" },
-          "country": { "type": "string" },
-          "sex": { "type": "string" },
-          "weight": { "type": "number" },
-          "profile": { "type": "string" },
-          "follower_count": { "type": "integer" },
-          "friend_count": { "type": "integer" },
-          "athlete_type": { "type": "integer" },
-          "date_preference": { "type": "string" },
-          "measurement_preference": { "type": "string" }
+          "id": {
+            "type": "integer"
+          },
+          "username": {
+            "type": "string"
+          },
+          "firstname": {
+            "type": "string"
+          },
+          "lastname": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "sex": {
+            "type": "string"
+          },
+          "weight": {
+            "type": "number"
+          },
+          "profile": {
+            "type": "string"
+          },
+          "follower_count": {
+            "type": "integer"
+          },
+          "friend_count": {
+            "type": "integer"
+          },
+          "athlete_type": {
+            "type": "integer"
+          },
+          "date_preference": {
+            "type": "string"
+          },
+          "measurement_preference": {
+            "type": "string"
+          }
         }
       },
       "Activity": {
         "type": "object",
         "properties": {
-          "id": { "type": "integer" },
-          "name": { "type": "string" },
-          "distance": { "type": "number" },
-          "moving_time": { "type": "integer" },
-          "elapsed_time": { "type": "integer" },
-          "total_elevation_gain": { "type": "number" },
-          "type": { "type": "string" },
-          "start_date": { "type": "string" },
-          "start_date_local": { "type": "string" },
-          "average_speed": { "type": "number" },
-          "max_speed": { "type": "number" },
-          "average_heartrate": { "type": "number" },
-          "max_heartrate": { "type": "number" },
-          "elev_high": { "type": "number" },
-          "elev_low": { "type": "number" },
-          "description": { "type": "string" },
-          "calories": { "type": "number" },
-          "map": {
+          "id": {
+            "type": "integer"
+          },
+          "athlete": {
             "type": "object",
             "properties": {
-              "id": { "type": "string" },
-              "summary_polyline": { "type": "string" }
+              "id": {
+                "type": "integer"
+              },
+              "resource_state": {
+                "type": "integer"
+              }
             }
+          },
+          "name": {
+            "type": "string"
+          },
+          "distance": {
+            "type": "number"
+          },
+          "moving_time": {
+            "type": "integer"
+          },
+          "elapsed_time": {
+            "type": "integer"
+          },
+          "total_elevation_gain": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          },
+          "sport_type": {
+            "type": "string"
+          },
+          "start_date": {
+            "type": "string"
+          },
+          "start_date_local": {
+            "type": "string"
+          },
+          "timezone": {
+            "type": "string"
+          },
+          "utc_offset": {
+            "type": "integer"
+          },
+          "commute": {
+            "type": "boolean"
+          },
+          "average_speed": {
+            "type": "number"
+          },
+          "max_speed": {
+            "type": "number"
+          },
+          "device_watts": {
+            "type": "boolean"
+          },
+          "has_heartrate": {
+            "type": "boolean"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "calories": {
+            "type": "number"
           }
         }
       },
       "AthleteStats": {
         "type": "object",
         "properties": {
-          "biggest_ride_distance": { "type": "number" },
-          "biggest_climb_elevation_gain": { "type": "number" },
-          "recent_run_totals": { "$ref": "#/components/schemas/ActivityTotals" },
-          "recent_ride_totals": { "$ref": "#/components/schemas/ActivityTotals" },
-          "recent_swim_totals": { "$ref": "#/components/schemas/ActivityTotals" },
-          "ytd_run_totals": { "$ref": "#/components/schemas/ActivityTotals" },
-          "ytd_ride_totals": { "$ref": "#/components/schemas/ActivityTotals" },
-          "ytd_swim_totals": { "$ref": "#/components/schemas/ActivityTotals" },
-          "all_run_totals": { "$ref": "#/components/schemas/ActivityTotals" },
-          "all_ride_totals": { "$ref": "#/components/schemas/ActivityTotals" },
-          "all_swim_totals": { "$ref": "#/components/schemas/ActivityTotals" }
+          "biggest_ride_distance": {
+            "type": "number"
+          },
+          "biggest_climb_elevation_gain": {
+            "type": "number"
+          },
+          "recent_run_totals": {
+            "$ref": "#/components/schemas/ActivityTotals"
+          },
+          "recent_ride_totals": {
+            "$ref": "#/components/schemas/ActivityTotals"
+          },
+          "recent_swim_totals": {
+            "$ref": "#/components/schemas/ActivityTotals"
+          },
+          "ytd_run_totals": {
+            "$ref": "#/components/schemas/ActivityTotals"
+          },
+          "ytd_ride_totals": {
+            "$ref": "#/components/schemas/ActivityTotals"
+          },
+          "ytd_swim_totals": {
+            "$ref": "#/components/schemas/ActivityTotals"
+          },
+          "all_run_totals": {
+            "$ref": "#/components/schemas/ActivityTotals"
+          },
+          "all_ride_totals": {
+            "$ref": "#/components/schemas/ActivityTotals"
+          },
+          "all_swim_totals": {
+            "$ref": "#/components/schemas/ActivityTotals"
+          }
         }
       },
       "ActivityTotals": {
         "type": "object",
         "properties": {
-          "count": { "type": "integer" },
-          "distance": { "type": "number" },
-          "moving_time": { "type": "integer" },
-          "elapsed_time": { "type": "integer" },
-          "elevation_gain": { "type": "number" },
-          "achievement_count": { "type": "integer" }
+          "count": {
+            "type": "integer"
+          },
+          "distance": {
+            "type": "number"
+          },
+          "moving_time": {
+            "type": "integer"
+          },
+          "elapsed_time": {
+            "type": "integer"
+          },
+          "elevation_gain": {
+            "type": "number"
+          },
+          "achievement_count": {
+            "type": "integer"
+          }
+        }
+      },
+      "DetailedActivity": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "athlete": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer"
+              },
+              "resource_state": {
+                "type": "integer"
+              }
+            }
+          },
+          "name": {
+            "type": "string"
+          },
+          "distance": {
+            "type": "number"
+          },
+          "moving_time": {
+            "type": "integer"
+          },
+          "elapsed_time": {
+            "type": "integer"
+          },
+          "total_elevation_gain": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          },
+          "sport_type": {
+            "type": "string"
+          },
+          "start_date": {
+            "type": "string"
+          },
+          "start_date_local": {
+            "type": "string"
+          },
+          "timezone": {
+            "type": "string"
+          },
+          "utc_offset": {
+            "type": "integer"
+          },
+          "commute": {
+            "type": "boolean"
+          },
+          "average_speed": {
+            "type": "number"
+          },
+          "max_speed": {
+            "type": "number"
+          },
+          "average_cadence": {
+            "type": "number"
+          },
+          "average_temp": {
+            "type": "integer"
+          },
+          "average_watts": {
+            "type": "number"
+          },
+          "weighted_average_watts": {
+            "type": "integer"
+          },
+          "kilojoules": {
+            "type": "number"
+          },
+          "device_watts": {
+            "type": "boolean"
+          },
+          "has_heartrate": {
+            "type": "boolean"
+          },
+          "max_watts": {
+            "type": "integer"
+          },
+          "elev_high": {
+            "type": "number"
+          },
+          "elev_low": {
+            "type": "number"
+          },
+          "workout_type": {
+            "type": "integer"
+          },
+          "suffer_score": {
+            "type": "integer",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "calories": {
+            "type": "number"
+          },
+          "splits_metric": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Split"
+            }
+          },
+          "laps": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Lap"
+            }
+          },
+          "embed_token": {
+            "type": "string"
+          }
+        }
+      },
+      "Split": {
+        "type": "object",
+        "properties": {
+          "distance": {
+            "type": "number"
+          },
+          "elapsed_time": {
+            "type": "integer"
+          },
+          "elevation_difference": {
+            "type": "number"
+          },
+          "moving_time": {
+            "type": "integer"
+          },
+          "split": {
+            "type": "integer"
+          },
+          "average_speed": {
+            "type": "number"
+          },
+          "pace_zone": {
+            "type": "integer"
+          }
+        }
+      },
+      "Lap": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "resource_state": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "activity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer"
+              },
+              "resource_state": {
+                "type": "integer"
+              }
+            }
+          },
+          "athlete": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer"
+              },
+              "resource_state": {
+                "type": "integer"
+              }
+            }
+          },
+          "elapsed_time": {
+            "type": "integer"
+          },
+          "moving_time": {
+            "type": "integer"
+          },
+          "start_date": {
+            "type": "string"
+          },
+          "start_date_local": {
+            "type": "string"
+          },
+          "distance": {
+            "type": "number"
+          },
+          "start_index": {
+            "type": "integer"
+          },
+          "end_index": {
+            "type": "integer"
+          },
+          "total_elevation_gain": {
+            "type": "number"
+          },
+          "average_speed": {
+            "type": "number"
+          },
+          "max_speed": {
+            "type": "number"
+          },
+          "average_cadence": {
+            "type": "number"
+          },
+          "device_watts": {
+            "type": "boolean"
+          },
+          "average_watts": {
+            "type": "number"
+          },
+          "lap_index": {
+            "type": "integer"
+          },
+          "split": {
+            "type": "integer"
+          }
         }
       }
     }
