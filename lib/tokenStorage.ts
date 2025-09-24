@@ -1,17 +1,22 @@
 // lib/tokenStorage.ts
+
 import { getRedisClient } from '@/lib/redis';
 
 export async function saveTokens(tokenData: any) {
   try {
     const redis = getRedisClient();
-    // Correction: supporter les deux formats d'athlete
     const athleteId = tokenData.athlete?.id || tokenData.athlete_id;
     const key = `strava_tokens:${athleteId}`;
     
-    // Stocker les données avec expiration
+    // Stocker les tokens de l'utilisateur
     await redis.setex(key, 86400 * 30, JSON.stringify(tokenData)); // 30 jours
     
+    // Stocker aussi une référence au dernier utilisateur connecté (utilisateur unique)
+    await redis.set('current_athlete', athleteId.toString());
+    
     console.log('✅ Tokens saved to Redis via REST API');
+    console.log('✅ Current user set to athlete ID:', athleteId);
+    
     return { success: true };
   } catch (error) {
     console.error('❌ Error saving tokens:', error);
@@ -36,11 +41,35 @@ export async function loadTokens(athleteId: string) {
   }
 }
 
+export async function getCurrentUser() {
+  try {
+    const redis = getRedisClient();
+    const athleteId = await redis.get('current_athlete');
+    
+    if (!athleteId) {
+      console.log('🔍 No current athlete found');
+      return null;
+    }
+    
+    console.log('🔍 Found current athlete ID:', athleteId);
+    return await loadTokens(athleteId as string);
+  } catch (error) {
+    console.error('❌ Error getting current user:', error);
+    return null;
+  }
+}
+
 export async function clearTokens(athleteId: string) {
   try {
     const redis = getRedisClient();
     const key = `strava_tokens:${athleteId}`;
     await redis.del(key);
+    
+    // Supprimer aussi la référence utilisateur actuel si c'est le même
+    const currentAthlete = await redis.get('current_athlete');
+    if (currentAthlete === athleteId) {
+      await redis.del('current_athlete');
+    }
     
     console.log('✅ Tokens cleared from Redis');
     return { success: true };
