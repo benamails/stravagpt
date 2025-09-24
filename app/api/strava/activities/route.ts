@@ -1,3 +1,5 @@
+//app/api/strava/activities/route.ts
+
 import { NextRequest, NextResponse } from 'next/server';
 import { stravaClient } from '@/lib/strava';
 import { validateApiKey } from '@/lib/auth';
@@ -9,9 +11,19 @@ export async function GET(request: NextRequest) {
     const apiKeyError = validateApiKey(request);
     if (apiKeyError) return apiKeyError;
 
-    // Always refresh tokens if needed before making API calls
-    const tokens = await refreshTokensIfNeeded();
+    // Extract athleteId from query parameters
+    const { searchParams } = new URL(request.url);
+    const athleteId = searchParams.get('athleteId');
+    
+    if (!athleteId) {
+      return NextResponse.json({
+        success: false,
+        error: 'Athlete ID required'
+      }, { status: 400 });
+    }
 
+    // Always refresh tokens if needed before making API calls
+    const tokens = await refreshTokensIfNeeded(athleteId);
     if (!tokens) {
       return NextResponse.json(
         { success: false, error: 'Not authenticated. Please authenticate first.' },
@@ -19,7 +31,6 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
     const perPage = parseInt(searchParams.get('per_page') || '30');
 
@@ -34,6 +45,7 @@ export async function GET(request: NextRequest) {
         total: activities.length
       }
     });
+
   } catch (error) {
     console.error('Activities fetch error:', error);
     return NextResponse.json(

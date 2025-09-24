@@ -1,3 +1,5 @@
+// app/api/strava/stats/route.ts
+
 import { NextRequest, NextResponse } from 'next/server';
 import { stravaClient } from '@/lib/strava';
 import { validateApiKey } from '@/lib/auth';
@@ -9,9 +11,27 @@ export async function GET(request: NextRequest) {
     const apiKeyError = validateApiKey(request);
     if (apiKeyError) return apiKeyError;
 
-    // Always refresh tokens if needed before making API calls
-    const tokens = await refreshTokensIfNeeded();
+    // Extract parameters from query
+    const { searchParams } = new URL(request.url);
+    const athleteId = searchParams.get('athleteId');
+    const athleteIdForStats = searchParams.get('athlete_id');
+    
+    if (!athleteId) {
+      return NextResponse.json({
+        success: false,
+        error: 'Athlete ID required'
+      }, { status: 400 });
+    }
 
+    if (!athleteIdForStats) {
+      return NextResponse.json(
+        { success: false, error: 'Athlete ID for stats required' },
+        { status: 400 }
+      );
+    }
+
+    // Always refresh tokens if needed before making API calls
+    const tokens = await refreshTokensIfNeeded(athleteId);
     if (!tokens) {
       return NextResponse.json(
         { success: false, error: 'Not authenticated. Please authenticate first.' },
@@ -19,17 +39,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const { searchParams } = new URL(request.url);
-    const athleteId = searchParams.get('athlete_id');
-
-    if (!athleteId) {
-      return NextResponse.json(
-        { success: false, error: 'Athlete ID required' },
-        { status: 400 }
-      );
-    }
-
-    const athleteIdNum = parseInt(athleteId);
+    const athleteIdNum = parseInt(athleteIdForStats);
     if (isNaN(athleteIdNum)) {
       return NextResponse.json(
         { success: false, error: 'Invalid athlete ID' },
@@ -43,6 +53,7 @@ export async function GET(request: NextRequest) {
       success: true,
       data: stats
     });
+
   } catch (error) {
     console.error('Stats fetch error:', error);
     return NextResponse.json(

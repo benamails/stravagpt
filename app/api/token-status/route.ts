@@ -1,3 +1,5 @@
+// app/api/token-status/route.ts
+
 import { NextRequest, NextResponse } from 'next/server';
 import { validateApiKey } from '@/lib/auth';
 import { loadTokens } from '@/lib/tokenStorage';
@@ -5,19 +7,30 @@ import { loadTokens } from '@/lib/tokenStorage';
 export async function GET(request: NextRequest) {
   try {
     console.log('📊 Token status check requested');
-    
+
     // Optional API key validation for extra security
     const apiKeyError = validateApiKey(request);
     if (apiKeyError) return apiKeyError;
 
-    const tokens = await loadTokens();
+    // Extraire l'athleteId depuis les paramètres de query
+    const { searchParams } = new URL(request.url);
+    const athleteId = searchParams.get('athleteId');
     
+    if (!athleteId) {
+      return NextResponse.json({
+        success: false,
+        error: 'Athlete ID required'
+      }, { status: 400 });
+    }
+
+    const tokens = await loadTokens(athleteId); // ✅ Avec paramètre
+
     console.log('🔍 Current token state:', {
       has_tokens: !!tokens,
       expires_at: tokens?.expires_at || 'N/A',
       athlete_name: tokens?.athlete?.firstname || 'N/A'
     });
-    
+
     if (!tokens) {
       console.log('❌ No tokens found in storage');
       return NextResponse.json({
@@ -63,6 +76,7 @@ export async function GET(request: NextRequest) {
         }
       }
     });
+
   } catch (error) {
     console.error('💥 Token status error:', error);
     return NextResponse.json(

@@ -10,12 +10,24 @@ export async function DELETE(request: NextRequest) {
     const apiKeyError = validateApiKey(request);
     if (apiKeyError) return apiKeyError;
 
-    await clearTokens();
+    // Extraire l'athleteId depuis les paramètres de query
+    const { searchParams } = new URL(request.url);
+    const athleteId = searchParams.get('athleteId');
+    
+    if (!athleteId) {
+      return NextResponse.json({
+        success: false,
+        error: 'Athlete ID required'
+      }, { status: 400 });
+    }
+
+    await clearTokens(athleteId); // ✅ Avec paramètre obligatoire
 
     return NextResponse.json({
       success: true,
       message: 'Tokens cleared successfully'
     });
+
   } catch (error) {
     console.error('Clear tokens error:', error);
     return NextResponse.json(

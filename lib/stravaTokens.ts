@@ -1,11 +1,11 @@
 import { StravaTokenResponse } from './strava';
 import { loadTokens, saveTokens } from './tokenStorage';
 
-export async function refreshTokensIfNeeded(): Promise<StravaTokenResponse | null> {
+export async function refreshTokensIfNeeded(athleteId: string): Promise<StravaTokenResponse | null> {
   console.log('🔍 Checking tokens for refresh...');
-  
+
   // Load tokens from persistent storage
-  const tokens = await loadTokens();
+  const tokens = await loadTokens(athleteId);
   
   if (!tokens) {
     console.log('❌ No tokens available for refresh - user needs to authenticate');
@@ -21,14 +21,14 @@ export async function refreshTokensIfNeeded(): Promise<StravaTokenResponse | nul
     time_until_expiry: timeUntilExpiry,
     is_expired: timeUntilExpiry <= 0
   });
-  
+
   if (tokens.expires_at > now) {
     console.log('✅ Tokens still valid, no refresh needed');
     return tokens; // still valid
   }
 
   console.log('🔄 Tokens expired, refreshing...');
-
+  
   try {
     const refreshRes = await fetch("https://www.strava.com/oauth/token", {
       method: "POST",
@@ -47,17 +47,24 @@ export async function refreshTokensIfNeeded(): Promise<StravaTokenResponse | nul
     }
 
     const newTokens: StravaTokenResponse = await refreshRes.json();
-    await saveTokens(newTokens);
-
+    
+    // ✅ SOLUTION : Créer un objet avec la structure attendue
+    const tokenDataForStorage = {
+      ...newTokens,
+      athlete_id: tokens.athlete?.id || athleteId
+    };
+    
+    await saveTokens(tokenDataForStorage);
     console.log('Tokens refreshed successfully');
     return newTokens;
+    
   } catch (error) {
     console.error('Error refreshing tokens:', error);
     return null;
   }
 }
 
-export async function getValidAccessToken(): Promise<string | null> {
-  const tokens = await refreshTokensIfNeeded();
+export async function getValidAccessToken(athleteId: string): Promise<string | null> {
+  const tokens = await refreshTokensIfNeeded(athleteId);
   return tokens?.access_token || null;
 }
