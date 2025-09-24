@@ -38,8 +38,8 @@ export async function GET(request: NextRequest) {
     const pageParam = searchParams.get('page');
     const perPageParam = searchParams.get('per_page');
     const page = Math.max(1, parseInt(pageParam || '1'));
-    const requestedPerPage = parseInt(perPageParam || '30');
-    const perPage = Math.max(1, Math.min(requestedPerPage, 50)); // cap page size
+    const requestedPerPage = parseInt(perPageParam || '50');
+    const perPage = Math.max(1, Math.min(requestedPerPage, 100)); // cap page size
 
     // Date bounds: default to last 28 days if not provided
     const beforeParam = searchParams.get('before');

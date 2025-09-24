@@ -5,3 +5,4 @@ node_modules
 prompt.md
 payload_activity_id.json
 payload_activity.json
+openapi-schema-private.json
