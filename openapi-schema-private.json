@@ -241,7 +241,7 @@
     "/api/strava/activities": {
       "get": {
         "summary": "Get athlete activities",
-        "description": "Returns a list of activities for the authenticated athlete. Requires Authorization header with Bearer token. The API is set by default from now to the last 28 days. Pass Unix seconds in 'after' and optionally 'before' (defaults to now) to control the time window.",
+        "description": "Returns a list of activities for the authenticated athlete. Requires Authorization header with Bearer token. If no date bounds are provided, the API defaults to the last 28 days. Pass Unix seconds in 'after' and optionally 'before' (defaults to now) to control the time window.",
         "operationId": "getActivities",
         "parameters": [
           {
@@ -266,7 +266,7 @@
           {
             "name": "after",
             "in": "query",
-            "description": "Return activities after this time (Unix seconds). If omitted, defaults to last 28 days from now.",
+            "description": "Return activities after this time (Unix seconds). If omitted, defaults to last 28 days.",
             "schema": {
               "type": "integer",
               "format": "int64"
