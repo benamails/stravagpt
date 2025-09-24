@@ -3,3 +3,5 @@ node_modules
 .env
 .DS_Store
 prompt.md
+payload_activity_id.json
+payload_activity.json

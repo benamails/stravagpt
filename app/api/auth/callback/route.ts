@@ -2,13 +2,9 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { stravaClient } from '@/lib/strava';
-import { validateApiKey } from '@/lib/auth';
 
 export async function GET(request: NextRequest) {
   try {
-    // Optional API key validation for extra security
-    const apiKeyError = validateApiKey(request);
-    if (apiKeyError) return apiKeyError;
     const { searchParams } = new URL(request.url);
     const code = searchParams.get('code');
     const error = searchParams.get('error');
