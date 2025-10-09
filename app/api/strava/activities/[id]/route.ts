@@ -1,5 +1,3 @@
-// app/api/strava/activities/[id]/route.ts
-
 import { NextRequest, NextResponse } from 'next/server';
 import { stravaClient } from '@/lib/strava';
 import { validateApiKey } from '@/lib/auth';
@@ -15,49 +13,63 @@ export async function GET(
     const apiKeyError = validateApiKey(request);
     if (apiKeyError) return apiKeyError;
 
-    // Extract athleteId from query parameters or fallback to current stored user
-    const { searchParams } = new URL(request.url);
-    let athleteId = searchParams.get('athleteId');
-    if (!athleteId) {
-      const current = await getCurrentUser();
-      athleteId = (current?.athlete?.id || current?.athlete_id)?.toString() || null;
+    const activityId = params.id;
+
+    if (!activityId) {
+      return NextResponse.json({ error: 'Missing activity ID' }, { status: 400 });
     }
-    
+
+    // Get current user from token storage
+    const current = await getCurrentUser();
+    if (!current) {
+      return NextResponse.json(
+        { error: 'Not authenticated. Please authenticate first.' },
+        { status: 401 }
+      );
+    }
+
+    const athleteId = (current?.athlete?.id || current?.athlete_id)?.toString();
     if (!athleteId) {
-      return NextResponse.json({
-        success: false,
-        error: 'Athlete ID required'
-      }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Athlete ID not found in token data' },
+        { status: 400 }
+      );
     }
 
     // Always refresh tokens if needed before making API calls
     const tokens = await refreshTokensIfNeeded(athleteId);
     if (!tokens) {
       return NextResponse.json(
-        { success: false, error: 'Not authenticated. Please authenticate first.' },
+        { error: 'Not authenticated. Please authenticate first.' },
         { status: 401 }
       );
     }
 
-    const activityId = parseInt(params.id);
-    if (isNaN(activityId)) {
-      return NextResponse.json(
-        { success: false, error: 'Invalid activity ID' },
-        { status: 400 }
-      );
-    }
+    // Get the activity
+    // Note: The Strava API will only return an activity if it belongs to the authenticated athlete
+    // If the activity doesn't belong to the current athlete, the API will return a 404
+    const activity = await stravaClient.getActivity(tokens.access_token, parseInt(activityId));
 
-    const activity = await stravaClient.getActivity(tokens.access_token, activityId);
+    if (!activity) {
+      return NextResponse.json({ error: 'Activity not found' }, { status: 404 });
+    }
 
     return NextResponse.json({
       success: true,
       data: activity
     });
 
-  } catch (error) {
-    console.error('Activity fetch error:', error);
+  } catch (error: any) {
+    if (error.response?.status === 404) {
+      return NextResponse.json(
+        { error: 'Activity not found (Strava API 404)' },
+        { status: 404 }
+      );
+    }
+
+    console.error('❌ Error fetching activity:', error);
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch activity' },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }
