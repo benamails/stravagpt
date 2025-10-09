@@ -1,17 +1,17 @@
 {
   "/_not-found/page": "app/_not-found/page.js",
-  "/api/strava/activities/[id]/route": "app/api/strava/activities/[id]/route.js",
+  "/api/auth/route": "app/api/auth/route.js",
+  "/api/clear-tokens/route": "app/api/clear-tokens/route.js",
   "/api/strava/activities/route": "app/api/strava/activities/route.js",
+  "/api/auth/callback/route": "app/api/auth/callback/route.js",
+  "/api/strava/activities/[id]/route": "app/api/strava/activities/[id]/route.js",
   "/api/strava/athlete/route": "app/api/strava/athlete/route.js",
+  "/api/store-token/route": "app/api/store-token/route.js",
+  "/api/test/route": "app/api/test/route.js",
   "/api/strava/stats/route": "app/api/strava/stats/route.js",
   "/api/token-status/route": "app/api/token-status/route.js",
-  "/api/test/route": "app/api/test/route.js",
-  "/auth/success/page": "app/auth/success/page.js",
-  "/page": "app/page.js",
-  "/api/clear-tokens/route": "app/api/clear-tokens/route.js",
-  "/api/auth/route": "app/api/auth/route.js",
-  "/api/auth/callback/route": "app/api/auth/callback/route.js",
-  "/api/store-token/route": "app/api/store-token/route.js",
   "/api/auth-status/route": "app/api/auth-status/route.js",
-  "/auth/error/page": "app/auth/error/page.js"
+  "/auth/error/page": "app/auth/error/page.js",
+  "/auth/success/page": "app/auth/success/page.js",
+  "/page": "app/page.js"
 }

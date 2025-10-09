@@ -12,25 +12,19 @@ export async function GET(request: NextRequest) {
     const apiKeyError = validateApiKey(request);
     if (apiKeyError) return apiKeyError;
 
-    // Extract parameters from query, fallback to current stored user for athleteId
-    const { searchParams } = new URL(request.url);
-    let athleteId = searchParams.get('athleteId');
-    if (!athleteId) {
-      const current = await getCurrentUser();
-      athleteId = (current?.athlete?.id || current?.athlete_id)?.toString() || null;
-    }
-    const athleteIdForStats = searchParams.get('athlete_id');
-    
-    if (!athleteId) {
-      return NextResponse.json({
-        success: false,
-        error: 'Athlete ID required'
-      }, { status: 400 });
+    // Get current user from token storage
+    const current = await getCurrentUser();
+    if (!current) {
+      return NextResponse.json(
+        { error: 'Not authenticated. Please authenticate first.' },
+        { status: 401 }
+      );
     }
 
-    if (!athleteIdForStats) {
+    const athleteId = (current?.athlete?.id || current?.athlete_id)?.toString();
+    if (!athleteId) {
       return NextResponse.json(
-        { success: false, error: 'Athlete ID for stats required' },
+        { error: 'Athlete ID not found in token data' },
         { status: 400 }
       );
     }
@@ -39,15 +33,17 @@ export async function GET(request: NextRequest) {
     const tokens = await refreshTokensIfNeeded(athleteId);
     if (!tokens) {
       return NextResponse.json(
-        { success: false, error: 'Not authenticated. Please authenticate first.' },
+        { error: 'Not authenticated. Please authenticate first.' },
         { status: 401 }
       );
     }
 
-    const athleteIdNum = parseInt(athleteIdForStats);
+    // Only allow fetching stats for the current authenticated athlete
+    // The Strava API only allows you to get stats for the athlete whose tokens you're using
+    const athleteIdNum = parseInt(athleteId);
     if (isNaN(athleteIdNum)) {
       return NextResponse.json(
-        { success: false, error: 'Invalid athlete ID' },
+        { error: 'Invalid athlete ID' },
         { status: 400 }
       );
     }
